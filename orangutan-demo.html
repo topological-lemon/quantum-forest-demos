@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orangutan recursive call structure — De Gregorio, Gamba & Lameira (2025)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f6f5f0;
+      --text: #1a1a18;
+      --text2: #5f5e5a;
+      --text3: #888780;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.2);
+      --teal: #1D9E75;
+      --teal-bg: rgba(29,158,117,0.06);
+      --amber: #BA7517;
+      --amber-bg: rgba(186,117,23,0.06);
+      --coral: #D85A30;
+      --coral-lit: #F0997B;
+      --badge-yes-bg: #E1F5EE; --badge-yes-text: #0F6E56;
+      --badge-no-bg: #FAECE7; --badge-no-text: #993C1D;
+      --badge-diff-bg: #FAEEDA; --badge-diff-text: #854F0B;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a18;
+        --bg2: #242422;
+        --text: #e8e6de;
+        --text2: #9c9a92;
+        --text3: #6b6a63;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.18);
+        --badge-yes-bg: #085041; --badge-yes-text: #9FE1CB;
+        --badge-no-bg: #4A1B0C; --badge-no-text: #F5C4B3;
+        --badge-diff-bg: #412402; --badge-diff-text: #FAC775;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2.5rem 1.5rem;
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .play-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border2);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .play-btn:hover { background: var(--bg2); }
+
+    .pred-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .pred-btn {
+      font-size: 13px;
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text2);
+      transition: all 0.15s;
+    }
+    .pred-btn.on {
+      background: var(--bg2);
+      color: var(--text);
+      font-weight: 500;
+    }
+    .pred-divider { width: 1px; background: var(--border); }
+
+    .hint { font-size: 12.5px; color: var(--text3); }
+
+    .tl-wrap { position: relative; }
+
+    .track {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .t-label {
+      width: 78px;
+      flex-shrink: 0;
+      font-size: 10.5px;
+      font-weight: 500;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+      padding-right: 14px;
+    }
+    .t-body {
+      position: relative;
+      flex: 1;
+      height: 38px;
+    }
+
+    .series-line {
+      position: absolute;
+      left: 0; right: 0; top: 4px; height: 30px;
+      border: 1px solid var(--teal);
+      border-radius: 4px;
+      background: var(--teal-bg);
+    }
+
+    .bout-rect {
+      position: absolute;
+      top: 4px; height: 30px;
+      border: 1px solid var(--amber);
+      border-radius: 3px;
+      background: var(--amber-bg);
+      transition: left 0.4s ease, width 0.4s ease;
+    }
+
+    .call-tick {
+      position: absolute;
+      top: 8px;
+      width: 2.5px; height: 22px;
+      background: var(--coral);
+      border-radius: 1.5px;
+      transition: left 0.4s ease;
+    }
+    .call-tick.lit {
+      background: var(--coral-lit);
+      transform: scaleY(1.3);
+      transform-origin: bottom;
+    }
+
+    .phead {
+      position: absolute;
+      top: 0;
+      width: 1.5px;
+      background: var(--text2);
+      opacity: 0.3;
+      pointer-events: none;
+      display: none;
+    }
+
+    .legend {
+      display: flex;
+      gap: 1.5rem;
+      margin: 1rem 0 1.5rem;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+    .legend-swatch {
+      width: 16px; height: 12px;
+      border-radius: 2px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 480px) {
+      .info-grid { grid-template-columns: 1fr; }
+    }
+    .i-card {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.55;
+    }
+    .i-card strong {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 500;
+      color: var(--text3);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 9px;
+      border-radius: 99px;
+    }
+    .b-yes { background: var(--badge-yes-bg); color: var(--badge-yes-text); }
+    .b-no  { background: var(--badge-no-bg);  color: var(--badge-no-text);  }
+    .b-diff{ background: var(--badge-diff-bg);color: var(--badge-diff-text);}
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+
+    .source {
+      font-size: 12px;
+      color: var(--text3);
+      line-height: 1.7;
+    }
+    .source a { color: var(--teal); text-decoration: none; }
+    .source a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <p class="eyebrow">Interactive demo</p>
+  <h1>The orangutan's three-level recursive call</h1>
+  <p class="subtitle">Sumatran female orangutans encode predator-specific information across three hierarchical levels of the same alarm call. Toggle between a natural predator (tiger) and a non-natural predator (abstract pattern) to hear and see the difference.</p>
+
+  <div class="controls">
+    <button class="play-btn" id="playBtn" onclick="togglePlay()" title="Play / pause">
+      <svg id="playIcon" width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><polygon points="0,0 12,7 0,14"/></svg>
+    </button>
+    <div class="pred-toggle">
+      <button class="pred-btn on" id="btnNat" onclick="setPred('nat')">Tiger (natural predator)</button>
+      <div class="pred-divider"></div>
+      <button class="pred-btn" id="btnUnn" onclick="setPred('unn')">Pattern (non-natural)</button>
+    </div>
+    <span class="hint">Press play — listen to the rhythm</span>
+  </div>
+
+  <div class="tl-wrap" id="tlwrap">
+    <div class="track">
+      <div class="t-label">Series</div>
+      <div class="t-body" id="seriesBody">
+        <div class="series-line"></div>
+      </div>
+    </div>
+    <div class="track">
+      <div class="t-label">Bouts</div>
+      <div class="t-body" id="boutsBody"></div>
+    </div>
+    <div class="track">
+      <div class="t-label">Calls</div>
+      <div class="t-body" id="callsBody"></div>
+    </div>
+    <div class="phead" id="phead"></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="border: 1px solid #1D9E75; background: rgba(29,158,117,0.08);"></div>
+      Series (2–20s between bouts)
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="border: 1px solid #BA7517; background: rgba(186,117,23,0.08);"></div>
+      Bout (0.2–2s between calls)
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: #D85A30; border-radius: 1px;"></div>
+      Individual call (&lt;0.2s gap)
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="i-card">
+      <strong>Series level</strong>
+      Sustained response to the threat
+      <span class="badge b-yes" id="badgeSeries">No change between conditions</span>
+    </div>
+    <div class="i-card">
+      <strong>Bout level</strong>
+      Predator urgency grouping
+      <span class="badge b-diff" id="badgeBout">Faster tempo for tiger</span>
+    </div>
+    <div class="i-card">
+      <strong>Call level</strong>
+      Predator identity encoding
+      <span class="badge b-yes" id="badgeCall">Isochronous (regular)</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <p class="source">
+    De Gregorio, C., Gamba, M., &amp; Lameira, A. R. (2025). Third-order self-embedded vocal motifs in wild orangutans, and the selective evolution of recursion. <em>Annals of the New York Academy of Sciences</em>, 1549, 219–229.
+    <a href="https://doi.org/10.1111/nyas.15373" target="_blank">doi:10.1111/nyas.15373</a><br><br>
+    Isochrony at the call-combination level was statistically significant for natural predator responses (p = 0.001) but not for non-natural predator responses (p = 0.291). Bout tempo differed significantly between conditions (p = 0.031). Series-level timing showed no significant difference between conditions. Demo represents relative structure schematically — not raw audio data.
+  </p>
+
+  <script>
+    const CFG = {
+      nat: {
+        bouts: [{l:1,w:22},{l:26,w:22},{l:51,w:22},{l:76,w:22}],
+        calls: [3,8,13,18, 28,33,38,43, 53,58,63,68, 78,83,88,93]
+      },
+      unn: {
+        bouts: [{l:1,w:31},{l:35,w:29},{l:67,w:31}],
+        calls: [3,7,15,19,25,29, 37,42,47,54,58,62, 69,75,80,86,91,95]
+      }
+    };
+
+    let pred = 'nat', playing = false;
+    let audioCtx = null, animId = null;
+    let pos = 0, lastTs = null;
+    let fired = new Set();
+    const CYCLE = 5400;
+    const LBL_W = 78 + 14;
+
+    function makeClick() {
+      if (!audioCtx) return;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = 'sine';
+      o.frequency.value = pred === 'nat' ? 650 : 820;
+      g.gain.setValueAtTime(0.13, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+      o.start(); o.stop(audioCtx.currentTime + 0.05);
+    }
+
+    function render() {
+      const cfg = CFG[pred];
+      const bb = document.getElementById('boutsBody');
+      const cb = document.getElementById('callsBody');
+      bb.innerHTML = ''; cb.innerHTML = '';
+      cfg.bouts.forEach(b => {
+        const el = document.createElement('div');
+        el.className = 'bout-rect';
+        el.style.left = b.l + '%';
+        el.style.width = b.w + '%';
+        bb.appendChild(el);
+      });
+      cfg.calls.forEach((p, i) => {
+        const el = document.createElement('div');
+        el.className = 'call-tick';
+        el.id = 'ct' + i;
+        el.style.left = 'calc(' + p + '% - 1.25px)';
+        cb.appendChild(el);
+      });
+      const isNat = pred === 'nat';
+      document.getElementById('badgeCall').textContent = isNat ? 'Isochronous (regular)' : 'Non-isochronous (irregular)';
+      document.getElementById('badgeCall').className = 'badge ' + (isNat ? 'b-yes' : 'b-no');
+      document.getElementById('badgeBout').textContent = isNat ? 'Faster tempo for tiger' : 'Slower tempo for pattern';
+    }
+
+    function frame(ts) {
+      if (!lastTs) lastTs = ts;
+      const dt = ts - lastTs; lastTs = ts;
+      const prev = pos;
+      pos = (pos + (dt / CYCLE) * 100) % 100;
+      if (pos < prev) fired.clear();
+
+      const wrap = document.getElementById('tlwrap');
+      const cb = document.getElementById('callsBody');
+      const ph = document.getElementById('phead');
+      const bw = cb.offsetWidth;
+      ph.style.left = (LBL_W + (pos / 100) * bw) + 'px';
+      ph.style.height = wrap.offsetHeight + 'px';
+      ph.style.display = 'block';
+
+      CFG[pred].calls.forEach((cp, i) => {
+        if (pos >= cp && !fired.has(i)) {
+          fired.add(i);
+          makeClick();
+          const el = document.getElementById('ct' + i);
+          if (el) {
+            el.classList.add('lit');
+            setTimeout(() => el && el.classList.remove('lit'), 90);
+          }
+        }
+      });
+
+      if (playing) animId = requestAnimationFrame(frame);
+    }
+
+    function togglePlay() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      playing = !playing;
+      const icon = document.getElementById('playIcon');
+      if (playing) {
+        icon.innerHTML = '<rect x="0" y="0" width="4" height="14" rx="1"/><rect x="7" y="0" width="4" height="14" rx="1"/>';
+        lastTs = null;
+        animId = requestAnimationFrame(frame);
+      } else {
+        if (animId) cancelAnimationFrame(animId);
+        icon.innerHTML = '<polygon points="0,0 12,7 0,14"/>';
+        document.getElementById('phead').style.display = 'none';
+      }
+    }
+
+    function setPred(p) {
+      pred = p;
+      pos = 0; fired.clear(); lastTs = null;
+      document.getElementById('btnNat').classList.toggle('on', p === 'nat');
+      document.getElementById('btnUnn').classList.toggle('on', p === 'unn');
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
