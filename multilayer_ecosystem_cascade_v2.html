@@ -1,0 +1,220 @@
+
+<style>
+  .eco { padding: 1rem 0; font-family: var(--font-sans); }
+  .eco-ctrl { display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .eco-tag { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); margin-right: 4px; }
+  .eco-btn { font-size: 12.5px; padding: 6px 13px; border: 0.5px solid var(--color-border-secondary); border-radius: 6px; background: transparent; color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+  .eco-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .eco-btn.on { background: var(--color-background-secondary); color: var(--color-text-primary); font-weight: 500; }
+  .eco-btn.rst { border-color: var(--color-border-tertiary); color: var(--color-text-tertiary); }
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .panels { grid-template-columns: 1fr; } }
+  .ptitle { font-size: 10.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); margin-bottom: 6px; }
+  .eco-svg { width: 100%; display: block; border: 0.5px solid var(--color-border-tertiary); border-radius: 8px; }
+  .pmsg { font-size: 12px; color: var(--color-text-secondary); line-height: 1.55; margin-top: 8px; min-height: 40px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 1.25rem; }
+  .scard { background: var(--color-background-secondary); border-radius: 8px; padding: 10px 12px; }
+  .snum { font-size: 22px; font-weight: 500; line-height: 1; margin-bottom: 4px; color: var(--color-text-primary); }
+  .slbl { font-size: 11px; color: var(--color-text-tertiary); line-height: 1.4; }
+  .eco-note { font-size: 11.5px; color: var(--color-text-tertiary); margin-top: 1.25rem; line-height: 1.65; }
+</style>
+
+<div class="eco">
+  <div class="eco-ctrl">
+    <span class="eco-tag">Remove:</span>
+    <button class="eco-btn" onclick="go('bee')">Bee</button>
+    <button class="eco-btn" onclick="go('fig')">Fig tree</button>
+    <button class="eco-btn" onclick="go('orangutan')">Orangutan</button>
+    <button class="eco-btn" onclick="go('wasp')">Wasp</button>
+    <button class="eco-btn rst" onclick="rst()">↺ Reset</button>
+  </div>
+
+  <div class="panels">
+    <div>
+      <div class="ptitle">Multilayer network</div>
+      <svg class="eco-svg" viewBox="0 0 280 288" id="mlSvg">
+        <defs>
+          <marker id="at" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="aa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="ap" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#7F77DD" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+
+        <line id="ml_e_ot" x1="74" y1="68" x2="120" y2="116" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#at)"/>
+        <line id="ml_e_bm" x1="207" y1="68" x2="161" y2="116" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#aa)"/>
+        <line id="ml_e_wp" x1="140" y1="200" x2="140" y2="158" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="2 3" marker-end="url(#ap)"/>
+
+        <g id="ml_fig" style="transition:opacity 0.4s">
+          <circle cx="140" cy="133" r="24" fill="#1D9E75"/>
+          <text x="140" y="137" text-anchor="middle" style="font-size:9.5px;font-weight:500;fill:white;pointer-events:none">Fig</text>
+        </g>
+        <g id="ml_orangutan" style="transition:opacity 0.4s">
+          <circle cx="58" cy="52" r="20" fill="#D85A30"/>
+          <text x="58" y="56" text-anchor="middle" style="font-size:8px;font-weight:500;fill:white;pointer-events:none">Orang.</text>
+        </g>
+        <g id="ml_bee" style="transition:opacity 0.4s">
+          <circle cx="222" cy="52" r="20" fill="#BA7517"/>
+          <text x="222" y="56" text-anchor="middle" style="font-size:9px;font-weight:500;fill:white;pointer-events:none">Bee</text>
+        </g>
+        <g id="ml_wasp" style="transition:opacity 0.4s">
+          <circle cx="140" cy="220" r="20" fill="#7F77DD"/>
+          <text x="140" y="224" text-anchor="middle" style="font-size:8.5px;font-weight:500;fill:white;pointer-events:none">Wasp</text>
+        </g>
+
+        <!-- Legend moved to bottom-left, horizontal -->
+        <line x1="8" y1="265" x2="24" y2="265" stroke="#1D9E75" stroke-width="1.5"/>
+        <text x="28" y="269" style="font-size:9px;fill:#1D9E75">Trophic</text>
+        <line x1="90" y1="265" x2="106" y2="265" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="110" y="269" style="font-size:9px;fill:#BA7517">Mutualistic</text>
+        <line x1="195" y1="265" x2="211" y2="265" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="2 3"/>
+        <text x="215" y="269" style="font-size:9px;fill:#7F77DD">Parasitic</text>
+      </svg>
+      <div class="pmsg" id="mlMsg">Select a species above to trigger removal.</div>
+    </div>
+
+    <div>
+      <div class="ptitle">Monolayer (aggregated)</div>
+      <svg class="eco-svg" viewBox="0 0 280 288" id="monoSvg">
+        <defs>
+          <marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+        <line id="mono_e_of" x1="74" y1="68" x2="120" y2="116" stroke="#888780" stroke-width="1.5" marker-end="url(#ag)"/>
+        <line id="mono_e_bf" x1="207" y1="68" x2="161" y2="116" stroke="#888780" stroke-width="1.5" marker-end="url(#ag)"/>
+        <line id="mono_e_wf" x1="140" y1="200" x2="140" y2="158" stroke="#888780" stroke-width="1.5" marker-end="url(#ag)"/>
+        <g id="mono_fig" style="transition:opacity 0.4s">
+          <circle cx="140" cy="133" r="24" fill="#1D9E75"/>
+          <text x="140" y="137" text-anchor="middle" style="font-size:9.5px;font-weight:500;fill:white;pointer-events:none">Fig</text>
+        </g>
+        <g id="mono_orangutan" style="transition:opacity 0.4s">
+          <circle cx="58" cy="52" r="20" fill="#D85A30"/>
+          <text x="58" y="56" text-anchor="middle" style="font-size:8px;font-weight:500;fill:white;pointer-events:none">Orang.</text>
+        </g>
+        <g id="mono_bee" style="transition:opacity 0.4s">
+          <circle cx="222" cy="52" r="20" fill="#BA7517"/>
+          <text x="222" y="56" text-anchor="middle" style="font-size:9px;font-weight:500;fill:white;pointer-events:none">Bee</text>
+        </g>
+        <g id="mono_wasp" style="transition:opacity 0.4s">
+          <circle cx="140" cy="220" r="20" fill="#7F77DD"/>
+          <text x="140" y="224" text-anchor="middle" style="font-size:8.5px;font-weight:500;fill:white;pointer-events:none">Wasp</text>
+        </g>
+        <text x="272" y="269" text-anchor="end" style="font-size:8.5px;fill:#888780">Interaction types collapsed</text>
+      </svg>
+      <div class="pmsg" id="monoMsg">Select a species above to trigger removal.</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="scard">
+      <div class="snum" id="mlCount" style="color:#1D9E75">—</div>
+      <div class="slbl">Extinctions<br>(multilayer)</div>
+    </div>
+    <div class="scard">
+      <div class="snum" id="monoCount" style="color:#D85A30">—</div>
+      <div class="slbl">Extinctions<br>(monolayer)</div>
+    </div>
+    <div class="scard">
+      <div class="snum" id="missedNum">—</div>
+      <div class="slbl">Cascade events<br>invisible to monolayer</div>
+    </div>
+  </div>
+
+  <p class="eco-note">Aggregating a multilayer ecological network to a single layer retains only ~52% of community structure information — Pilosof, Porter, Pascual & Kéfi (2017). The interlayer cascade pathways shown above represent part of the missing 48%. Try removing the Bee first, then the Fig tree.</p>
+</div>
+
+<script>
+  const C = {
+    bee: {
+      ml: [
+        { s: ['bee'], e: ['ml_e_bm'], d: 0, m: 'Bee removed from the mutualistic layer.' },
+        { s: ['fig'], e: ['ml_e_ot','ml_e_wp'], d: 750, m: 'Fig loses its pollinator — mutualistic dependency propagates through interlayer structure. Fig goes extinct.' },
+        { s: ['orangutan','wasp'], e: [], d: 1500, m: 'Orangutan loses its food source. Wasp loses its host plant. Cascade complete: 3 extinctions.' }
+      ],
+      mono: [
+        { s: ['bee'], e: ['mono_e_bf'], d: 0, m: 'Bee removed. Fig retains connections to Orangutan and Wasp — appears viable. Mutualistic dependency invisible. 0 cascading extinctions.' }
+      ],
+      mt: 3, nt: 0
+    },
+    fig: {
+      ml: [
+        { s: ['fig'], e: ['ml_e_ot','ml_e_bm','ml_e_wp'], d: 0, m: 'Fig removed from all layers.' },
+        { s: ['orangutan','bee','wasp'], e: [], d: 850, m: 'All dependent species cascade extinct across all three layers. 3 extinctions.' }
+      ],
+      mono: [
+        { s: ['fig'], e: ['mono_e_of','mono_e_bf','mono_e_wf'], d: 0, m: 'Fig removed.' },
+        { s: ['orangutan','bee','wasp'], e: [], d: 850, m: 'All directly connected species lose their link. 3 extinctions — same result as the multilayer view for direct keystone removal.' }
+      ],
+      mt: 3, nt: 3
+    },
+    orangutan: {
+      ml: [{ s: ['orangutan'], e: ['ml_e_ot'], d: 0, m: 'Orangutan removed. Fig, Bee, and Wasp unaffected. No cascade.' }],
+      mono: [{ s: ['orangutan'], e: ['mono_e_of'], d: 0, m: 'Orangutan removed. No cascade.' }],
+      mt: 0, nt: 0
+    },
+    wasp: {
+      ml: [{ s: ['wasp'], e: ['ml_e_wp'], d: 0, m: 'Wasp removed. No cascade — Wasp is a top-level consumer with no dependents here.' }],
+      mono: [{ s: ['wasp'], e: ['mono_e_wf'], d: 0, m: 'Wasp removed. No cascade.' }],
+      mt: 0, nt: 0
+    }
+  };
+
+  let busy = false;
+
+  function fade(id) { const el = document.getElementById(id); if (el) el.style.opacity = '0.1'; }
+
+  function rst() {
+    busy = false;
+    ['ml_fig','ml_orangutan','ml_bee','ml_wasp',
+     'mono_fig','mono_orangutan','mono_bee','mono_wasp',
+     'ml_e_ot','ml_e_bm','ml_e_wp',
+     'mono_e_of','mono_e_bf','mono_e_wf'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.opacity = '1';
+    });
+    document.getElementById('mlMsg').textContent = 'Select a species above to trigger removal.';
+    document.getElementById('monoMsg').textContent = 'Select a species above to trigger removal.';
+    document.getElementById('mlCount').textContent = '—';
+    document.getElementById('monoCount').textContent = '—';
+    document.getElementById('missedNum').textContent = '—';
+    document.getElementById('missedNum').style.color = 'var(--color-text-primary)';
+    document.querySelectorAll('.eco-btn').forEach(b => b.classList.remove('on'));
+  }
+
+  function go(sp) {
+    if (busy) return;
+    busy = true;
+    rst();
+    const btn = document.querySelector(`.eco-btn[onclick="go('${sp}')"]`);
+    if (btn) btn.classList.add('on');
+    const cfg = C[sp];
+    if (!cfg) return;
+    cfg.ml.forEach(step => {
+      setTimeout(() => {
+        step.s.forEach(s => fade('ml_' + s));
+        step.e.forEach(e => fade(e));
+        document.getElementById('mlMsg').textContent = step.m;
+      }, step.d);
+    });
+    cfg.mono.forEach(step => {
+      setTimeout(() => {
+        step.s.forEach(s => fade('mono_' + s));
+        step.e.forEach(e => fade(e));
+        document.getElementById('monoMsg').textContent = step.m;
+      }, step.d);
+    });
+    const maxD = Math.max(...cfg.ml.map(s => s.d), ...cfg.mono.map(s => s.d));
+    setTimeout(() => {
+      document.getElementById('mlCount').textContent = cfg.mt;
+      document.getElementById('monoCount').textContent = cfg.nt;
+      const missed = cfg.mt - cfg.nt;
+      document.getElementById('missedNum').textContent = missed;
+      document.getElementById('missedNum').style.color = missed > 0 ? '#D85A30' : '#1D9E75';
+      busy = false;
+    }, maxD + 600);
+  }
+</script>
